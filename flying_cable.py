@@ -109,11 +109,9 @@ if __name__ == '__main__':
 	plt.grid('on')
 	plt.xlabel('Time [s]',fontweight='bold')
 	plt.ylabel('Energy [J]',fontweight='bold')	
-	
+	fig.tight_layout()
 	fig.canvas.draw() 
-	
-
-	
+		
 	# animate results
 	r_pulley = 0.1
 	theta = np.arange(0,np.pi,0.01)
