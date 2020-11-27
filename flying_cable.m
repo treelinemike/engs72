@@ -3,6 +3,10 @@
 
 % restart
 close all; clear; clc;
+if(ismac)
+    % enable imagemagick and ffmpeg on mac platform 
+    setenv('PATH', [getenv('PATH') ':/usr/local/bin']);
+end
 
 % general options
 anim_step = 20;  % speed up animation by skipping this many frames between refreshing plot
