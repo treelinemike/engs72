@@ -11,7 +11,7 @@ end
 % general options
 animate_step = 10; % speed up animation by skipping this many frames between refreshing plot
 doMakeVideo = 0; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
-videoFileName = 'baseball_drop';
+videoFileName = 'baseball_bounce';
 videoFrameRate = 100; % [frames/sec]
 
 % simulation time parameters
