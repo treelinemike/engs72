@@ -1,11 +1,12 @@
-% gravity simulation
+% baseball bounce simulation
+% for introducing basics of using ode45 for solving simple ODEs numerically
 
 % restart
 close all; clear all; clc;
 
 % simulation time parameters
 t0 = 0;         % [s] simulation start time
-tf = 1.15;         % [s] simulation end time
+tf = 1.15;      % [s] simulation end time
 dt = 0.001;     % [s] timestep size
 
 % initial conditions (state vector: [y y_dot]')
@@ -15,9 +16,9 @@ X0 = [y_0 y_dot_0]'; % [m m/s]'
 X = X0;
 
 % system parameters
-sysParams.m = 1;    % [kg]     mass
+sysParams.m = 1;    % [kg]     problem is mass independent!
 sysParams.g = 9.81; % [m/s^2]  acceleration of gravity
-sysParams.e = 0.45;
+sysParams.e = 0.45; % coefficient of restitution
 
 % data storage
 time = [t0];
@@ -49,7 +50,7 @@ end
 % compute total energy in system
 y = data(1,:);
 y_dot = data(2,:);
-E = 0.5*sysParams.m*y_dot.^2+sysParams.m*sysParams.g*y;
+E = 0.5*sysParams.m*y_dot.^2 + sysParams.m*sysParams.g*y;
 
 % plot results
 figure;
@@ -112,10 +113,8 @@ end
 % propagate state
 function Xdot = stateProp(t,X,sysParams)
 
-% recover parameters
-m = sysParams.m;
+% extract parameters
 g = sysParams.g;
-e = sysParams.e;
 
 % deconstruct state vector
 y     = X(1);
@@ -127,4 +126,5 @@ y_dot = X(2);
 Xdot = zeros(2,1);
 Xdot(1,:) = y_dot;
 Xdot(2,:) = -1*g;  
+
 end
