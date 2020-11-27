@@ -1,5 +1,6 @@
 # Flying cable simulation
 # Feynman exercise #10.15
+# REQUIRES PYTHON 3
 
 import numpy as np
 from scipy import integrate

@@ -1,5 +1,6 @@
-# baseball bounce simulation
-# for introducing basics of using ode45 for solving simple ODEs numerically
+# Baseball Bounce Simulation
+# For introducing basics of using ode45 for solving simple ODEs numerically
+# REQUIRES PYTHON 3
 
 import numpy as np
 from scipy import integrate

@@ -4,6 +4,12 @@
 % restart
 close all; clear; clc;
 
+% general options
+anim_step = 20;  % speed up animation by skipping this many frames between refreshing plot
+doMakeVideo = 1; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
+videoFileName = 'flying_cable';
+videoFrameRate = 50; % [frames/sec]
+
 % simulation time parameters
 t0 = 0;         % [s] simulation start time
 tf = 1.5;       % [s] simulation end time
@@ -23,9 +29,6 @@ sysParams.rho = 1;        % [kg/m]    rope mass per unit length
 % data storage
 time = t0;
 data = X0;
-
-% animation parameters
-anim_step = 20;  % speed up animation by skipping this many frames between refreshing plot
 
 % run simulation
 for t = t0:dt:(tf-dt)
@@ -96,6 +99,7 @@ x_circ = r_pulley*cos(theta);
 y_circ = r_pulley*sin(theta);
 
 % animate each frame of results
+saveFrameIdx = 0;
 for tIdx = 1:anim_step:size(data,2)
     
     % extract state at current timestep
@@ -121,7 +125,22 @@ for tIdx = 1:anim_step:size(data,2)
     ylim([-2.5 2*r_pulley]);
     title(sprintf('Time: %6.3fs',time(tIdx)));
  	drawnow;
-    pause(0.1);
+%     pause(0.1);
+    
+    % save frames for video if requested
+    if(doMakeVideo)
+        thisImgFile = sprintf('frame%03d.png',saveFrameIdx);
+        saveFrameIdx = saveFrameIdx + 1;
+        saveas(gcf,thisImgFile);
+        system(['convert -trim ' thisImgFile ' ' thisImgFile]);  % REQUIRES convert FROM IMAGEMAGICK!
+    end
+    
+end
+
+% generate movie with ffmpeg
+if(doMakeVideo)
+    system(['ffmpeg -y -r ' num2str(videoFrameRate) ' -start_number 1 -i frame%03d.png -vf scale="trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -profile:v high -pix_fmt yuv420p -g 25 -r 25 ' videoFileName '.mp4']);
+    system('rm frame*.png');
 end
 
 % propagate state
