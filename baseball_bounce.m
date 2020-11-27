@@ -77,6 +77,7 @@ xlabel('\bfTime [sec]');
 ylabel('\bfEnergy [J]');
 
 linkaxes(ah,'x');
+drawnow;
 
 %% Animate result in a new plot
 figure;
