@@ -22,9 +22,9 @@ X0 = [y_0 y_dot_0]'; % [m m/s]'
 X = X0;
 
 % system parameters
-sysParams.m = 1;    % [kg]     problem is mass independent!
-sysParams.g = 9.81; % [m/s^2]  acceleration of gravity
-sysParams.e = 0.45; % coefficient of restitution
+sysParams.m = 0.145; % [kg]     but, problem is mass independent!
+sysParams.g = 9.81;  % [m/s^2]  acceleration of gravity
+sysParams.e = 0.45;  % coefficient of restitution
 
 % data storage
 time = t0;
@@ -57,6 +57,7 @@ E = 0.5*sysParams.m*y_dot.^2 + sysParams.m*sysParams.g*y;
 
 % plot results
 figure;
+% set(gcf,'Position',[7.698000e+02 2.698000e+02 5.600000e+02 4.200000e+02]);
 ah(1) = subplot(3,1,1);
 hold on; grid on;
 plot(time,data(1,:),'b-','LineWidth',1.6);
@@ -79,6 +80,7 @@ linkaxes(ah,'x');
 
 %% Animate result in a new plot
 figure;
+% set(gcf,'Position',[1.754000e+02 2.682000e+02 0560 4.200000e+02]);
 hold on; grid on;
 xlim_vals = 0.5*0.618*[-1 1];
 
