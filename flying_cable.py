@@ -26,7 +26,7 @@ def pendulumTestStateProp(t, X):
 	# construct Xdot from differential equation
 	# note: X = [y y_dot] therefore Xdot = [y_dot y_ddot]
 	Xdot = np.zeros((2,1))
-	Xdot[0] = y_dot;
+	Xdot[0] = y_dot;	
 	
 	if(y <= sysParams["L"]/2):
 		Xdot[1] = 2*y*sysParams["g"]/sysParams["L"]
