@@ -2,7 +2,7 @@
 % for introducing basics of using ode45 for solving simple ODEs numerically
 
 % restart
-close all; clear all; clc;
+close all; clear; clc;
 
 % simulation time parameters
 t0 = 0;         % [s] simulation start time
