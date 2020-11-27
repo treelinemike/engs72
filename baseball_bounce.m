@@ -21,8 +21,8 @@ sysParams.g = 9.81; % [m/s^2]  acceleration of gravity
 sysParams.e = 0.45; % coefficient of restitution
 
 % data storage
-time = [t0];
-data = [X0];
+time = t0;
+data = X0;
 
 % other options
 animate_step = 10;

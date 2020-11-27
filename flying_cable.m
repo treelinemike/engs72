@@ -125,7 +125,7 @@ for tIdx = 1:anim_step:size(data,2)
 end
 
 % propagate state
-function Xdot = stateProp(~,X,sysParams)
+function Xdot = stateProp(t,X,sysParams)
 
 % recover parameters
 L = sysParams.L;
