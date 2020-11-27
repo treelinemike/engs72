@@ -25,7 +25,7 @@ time = t0;
 data = X0;
 
 % animation parameters
-anim_skip = 20;  % speed up animation by skipping this many frames between refreshing plot
+anim_step = 20;  % speed up animation by skipping this many frames between refreshing plot
 
 % run simulation
 for t = t0:dt:(tf-dt)
@@ -33,7 +33,7 @@ for t = t0:dt:(tf-dt)
     % calculate timestep for ODE solving
     odeTime = [t t+dt];
     
-    % propigate state
+    % propagate state
     [T,X] = ode45(@(t,X) stateProp(t,X,sysParams),odeTime,X);
     X = X(end, :)';  % note: this step is necessary to keep state vector dimensions correct for next call to ode45()
     
@@ -96,7 +96,7 @@ x_circ = r_pulley*cos(theta);
 y_circ = r_pulley*sin(theta);
 
 % animate each frame of results
-for tIdx = 1:anim_skip:size(data,2)
+for tIdx = 1:anim_step:size(data,2)
     
     % extract state at current timestep
     y = data(1,tIdx);

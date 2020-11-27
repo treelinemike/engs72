@@ -38,7 +38,7 @@ for t = t0:dt:(tf-dt)
         X(2) = -1*sysParams.e*X(2);
     end
     
-    % propigate state
+    % propagate state
     [T,X] = ode45(@(t,X) stateProp(t,X,sysParams),odeTime,X);
     X = X(end, :)';  % note: this step is necessary to keep state vector dimensions correct for next call to ode45()
     
@@ -56,14 +56,12 @@ E = 0.5*sysParams.m*y_dot.^2 + sysParams.m*sysParams.g*y;
 figure;
 ah(1) = subplot(3,1,1);
 hold on; grid on;
-plot(time,zeros(size(time)),'k--','LineWidth',1.6);
 plot(time,data(1,:),'b-','LineWidth',1.6);
 xlabel('\bfTime [sec]');
 ylabel('\bfPosition [m]');
 
 ah(2) = subplot(3,1,2);
 hold on; grid on;
-plot(time,zeros(size(time)),'k--','LineWidth',1.6);
 plot(time,data(2,:),'r-','LineWidth',1.6);
 xlabel('\bfTime [sec]');
 ylabel('\bfVelocity [m/s]');
