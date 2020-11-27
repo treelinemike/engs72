@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # system parameters
 sysParams = {
 	"m": 1, 	# [kg]       total length of cable
-	"g": 9.81,  # [m/s^2]   acceleration of gravity
+	"g": 9.81,  # [m/s^2]    acceleration of gravity
 	"e": 0.45,  # coefficient of restitution
 }
  

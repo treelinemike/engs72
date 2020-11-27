@@ -6,7 +6,7 @@ close all; clear; clc;
 
 % general options
 anim_step = 20;  % speed up animation by skipping this many frames between refreshing plot
-doMakeVideo = 1; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
+doMakeVideo = 0; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
 videoFileName = 'flying_cable';
 videoFrameRate = 50; % [frames/sec]
 
