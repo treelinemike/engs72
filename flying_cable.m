@@ -93,7 +93,8 @@ linkaxes(ah,'x');
 drawnow;
 
 %% Animate result in a new plot
-figure;
+fh_anim = 2;
+figure(fh_anim);
 hold on; grid on;
 
 % parameters of the pulley and cable wrapped around it (wrap length not
@@ -103,6 +104,20 @@ theta = 0:0.01:pi;
 x_circ = r_pulley*cos(theta);
 y_circ = r_pulley*sin(theta);
 
+% plot each element, and get handles so positions can be adjusted in
+% animation
+plot(0,0,'.','MarkerSize',50,'Color',[0 0 0]);
+ph_left = plot(-r_pulley*ones(1,2), nan(1,2),'-','LineWidth',3,'Color',[0.8 0 0]);
+ph_arc = plot(nan,nan,'-','LineWidth',3,'Color',[0.8 0 0]);
+ph_right = plot(r_pulley*ones(1,2), nan(1,2),'-','LineWidth',3,'Color',[0.8 0 0]);
+
+% finish formatting axes
+axis equal;
+xlabel('\bfX');
+ylabel('\bfY');
+xlim([-0.4 0.4]);
+ylim([-2.5 2*r_pulley]);
+
 % animate each frame of results
 saveFrameIdx = 0;
 for tIdx = 1:anim_step:size(data,2)
@@ -111,26 +126,24 @@ for tIdx = 1:anim_step:size(data,2)
     y = data(1,tIdx);
     y_dot = data(2,tIdx);
    
-    % clear axes and start plotting the current frame
-    cla;
-    plot(0,0,'.','MarkerSize',50,'Color',[0 0 0]);
+    % update elements in current plot
     if(y <= sysParams.L/2)
-        plot(-r_pulley*ones(1,2), [y-sysParams.L/2 0],'-','LineWidth',3,'Color',[0.8 0 0]);
-        plot(x_circ,y_circ,'-','LineWidth',3,'Color',[0.8 0 0]);
-        plot(r_pulley*ones(1,2), [0 -(sysParams.L/2+y)],'-','LineWidth',3,'Color',[0.8 0 0]);
+        ph_left.YData = [y-sysParams.L/2 0];
+        ph_arc.XData = x_circ;
+        ph_arc.YData = y_circ;
+        ph_right.YData = [0 -(sysParams.L/2+y)];
     else
-        plot(r_pulley*ones(1,2),(-y+(sysParams.L/2))+[0 -sysParams.L],'-','LineWidth',3,'Color',[0.8 0 0]);
+        ph_left.YData = nan(1,2);
+        ph_arc.XData = nan;
+        ph_arc.YData = nan;
+        ph_right.YData = (-y+(sysParams.L/2))+[0 -sysParams.L];
     end
     
-    % finish formatting axes
-    axis equal;
-    xlabel('\bfX');
-    ylabel('\bfY');
-    xlim([-0.4 0.4]);
-    ylim([-2.5 2*r_pulley]);
+    % update plot
+    figure(fh_anim); % this is silly, needed to work around an issue with plot losing focus in MATLAB Online
     title(sprintf('Time: %6.3fs',time(tIdx)));
  	drawnow;
-%     pause(0.1);
+    pause(0.75*dt*anim_step);
     
     % save frames for video if requested
     if(doMakeVideo)

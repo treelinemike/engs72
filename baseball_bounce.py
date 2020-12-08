@@ -41,9 +41,12 @@ if __name__ == '__main__':
 	# dopri5 is a Dormand-Price Runge-Kutta 4/5 solver
 	r = integrate.ode(StateProp).set_integrator('dopri5')
  
+	# speed up animation by skipping this many frames between refreshing plot
+	anim_step = 10
+ 
 	# integration time period
 	t0 = 0.0
-	tf = 1.15
+	tf = 1.2
 	dt = 0.001
 	nSteps = int(np.floor(((tf-t0)/dt)+1))
 	
@@ -105,7 +108,7 @@ if __name__ == '__main__':
 	# animate results
 	fig2 = plt.figure(num=None,figsize=(4,10))
 
-	for i in np.arange(0,len(t.T),10):
+	for i in np.arange(0,len(t.T),anim_step):
 		
 		# get current value of variable y (distance traveled)
 		t_now = t.T[i][0]
