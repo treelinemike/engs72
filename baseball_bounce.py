@@ -44,7 +44,7 @@ if __name__ == '__main__':
 	r = integrate.ode(StateProp).set_integrator('dopri5')
  
 	# speed up animation by skipping this many frames between refreshing plot
-	anim_step = 5
+	anim_step = 10
  
 	# integration time period
 	t0 = 0.0
