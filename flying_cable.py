@@ -1,12 +1,13 @@
 # Flying Cable Simulation
 # Feynman exercise #10.15
 # REQUIRES PYTHON 3
-# Uses blitting to speed up animation, see: https://matplotlib.org/3.3.0/tutorials/advanced/blitting.html
+# Uses blitting to speed up animation (doesn't work on Mac), see: https://matplotlib.org/3.3.0/tutorials/advanced/blitting.html
 
 import numpy as np
 from scipy import integrate
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
+import platform
 
 # system parameters
 sysParams = {
@@ -187,5 +188,9 @@ if __name__ == '__main__':
 		fig2.canvas.flush_events()
 		#plt.pause(0.00001)          # don't use plt.pause(), this is actually quite slow; instead change values of 'dt' and 'anim_step'
 	
+		# blitting doesn't work on Mac (known issue?) so if we're on a Mac add the pause
+		if(platform.system() == "Darwin"):
+                        plt.pause(0.00001)      
+
 	# keep figures displayed after animation ends
 	plt.show(block=True)
