@@ -1,6 +1,7 @@
 # Baseball Bounce Simulation
-# For introducing basics of using ode45 for solving simple ODEs numerically
+# For introducing a basic method of solving simple ODEs numerically
 # REQUIRES PYTHON 3
+# Uses blitting to speed up animation, see: https://matplotlib.org/3.3.0/tutorials/advanced/blitting.html
 
 import numpy as np
 from scipy import integrate
@@ -42,7 +43,7 @@ if __name__ == '__main__':
 	r = integrate.ode(StateProp).set_integrator('dopri5')
  
 	# speed up animation by skipping this many frames between refreshing plot
-	anim_step = 10
+	anim_step = 5
  
 	# integration time period
 	t0 = 0.0
@@ -108,32 +109,49 @@ if __name__ == '__main__':
 	# animate results
 	fig2 = plt.figure(num=None,figsize=(4,10))
 
+	# prepare plot
+	title_text = "Time: {:6.3f}s"
+	ph_title = plt.title(title_text.format(0),fontweight='bold',animated=True)	
+	plt.grid('on')
+	plt.xlim(-0.309, 0.309)
+	plt.ylim(-0.1,1)
+	plt.gca().set_aspect('equal', adjustable='box')
+	
+	# draw background
+	ground = patches.Rectangle((-0.309, -0.1),0.618,0.1,fill=True,facecolor='#999999',animated=False)
+	plt.gca().add_patch(ground)
+
+	# draw baseball
+	(ph_ball,) = plt.gca().plot(0,np.nan,'o',markersize=20,markeredgewidth=5,markerfacecolor='#FFFFFF', markeredgecolor='#CC0000',animated=True)
+	
+	# draw and cache initial plot
+	plt.show(block=False)
+	plt.pause(0.1)
+	bg = fig2.canvas.copy_from_bbox(fig2.bbox)
+	plt.gca().draw_artist(ph_ball)
+	plt.gca().draw_artist(ph_title)
+	fig2.canvas.blit(fig2.bbox)
+
+	# step through animation
 	for i in np.arange(0,len(t.T),anim_step):
 		
 		# get current value of variable y (distance traveled)
 		t_now = t.T[i][0]
 		y = X[0,i]
 	
-		# format plot
-		fig2.clear()
-		title_text = "Time: {:6.3f}s"
-		plt.title(title_text.format(t_now),fontweight='bold')
-		plt.grid('on')
-		plt.xlim(-0.309, 0.309)
-		plt.ylim(-0.1,1)
-		plt.gca().set_aspect('equal', adjustable='box')
+		# update plot
+		fig2.canvas.restore_region(bg)
+		ph_ball.set_ydata(y)
+		plt.gca().draw_artist(ph_ball)
 		
-		# show ground
-		art = patches.Rectangle((-0.309, -0.1),0.618,0.1,fill=True,facecolor='#999999')
-		plt.gca().add_patch(art)
-
-		# show baseball`
-		plt.plot(0,y,'o',markersize=20,markeredgewidth=5,markerfacecolor='#FFFFFF', markeredgecolor='#CC0000')
+		# add title
+		ph_title.set_text(title_text.format(t_now))
+		plt.gca().draw_artist(ph_title)
 		
 		# show current frame of animation
-		fig2.canvas.draw()
+		fig2.canvas.blit(fig2.bbox)
 		fig2.canvas.flush_events()
-		plt.pause(0.0001)
+		#plt.pause(0.00001)          # don't plt.pause(), this is actually quite slow; instead change values of 'dt' and 'anim_step'
 	
 	# keep figures displayed after animation ends
 	plt.show(block=True)

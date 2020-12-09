@@ -1,6 +1,7 @@
-# Flying cable simulation
+# Flying Cable Simulation
 # Feynman exercise #10.15
 # REQUIRES PYTHON 3
+# Uses blitting to speed up animation, see: https://matplotlib.org/3.3.0/tutorials/advanced/blitting.html
 
 import numpy as np
 from scipy import integrate
@@ -45,7 +46,7 @@ if __name__ == '__main__':
 	r = integrate.ode(StateProp).set_integrator('dopri5')
  
  	# speed up animation by skipping this many frames between refreshing plot
-	anim_step = 10
+	anim_step = 5
  
 	# integration time period
 	t0 = 0.0
@@ -55,8 +56,8 @@ if __name__ == '__main__':
 	
 	# initial conditions
 	X0 = np.zeros((2,1))
-	X0[0] = 0.005 # degrees
-	X0[1] = 0     # degrees/sec
+	X0[0] = 0.005 # [m]
+	X0[1] = 0     # [m/s]
 	r.set_initial_value(X0, t0)
  
 	# data storage
@@ -118,43 +119,73 @@ if __name__ == '__main__':
 	fig.canvas.draw() 
 		
 	# animate results
-	r_pulley = 0.1
+	fig2 = plt.figure(num=None,figsize=(4,10))
+	r_pulley = 0.1  # for display purposes only... in developing the physics we assumed a negligible pulley radius 
+	
+	# prepare plot
+	title_text = "Time: {:6.3f}s"
+	ph_title = plt.title(title_text.format(0),fontweight='bold',animated=True)
+	plt.grid('on')
+	plt.xlim(-0.4, 0.4)
+	plt.ylim(-2.5,2*r_pulley)
+	plt.gca().set_aspect('equal', adjustable='box')
+
+	# draw background
 	theta = np.arange(0,np.pi,0.01)
 	x_circ = r_pulley*np.cos(theta)
 	y_circ = r_pulley*np.sin(theta)
-	fig2 = plt.figure(num=None,figsize=(4,10))
-
+	pulley = patches.Circle((0, 0), 0.8*r_pulley,fill=True,facecolor='#000000',animated=False)
+	plt.gca().add_patch(pulley)
+	
+	# draw three segments of cable
+	seg_nan_lr = np.empty([2,1])
+	seg_nan_lr[:] = np.nan
+	seg_nan_ctr = np.empty(y_circ.shape)
+	seg_nan_ctr[:] = np.nan
+	(ph_lft_seg,) = plt.plot(-1*r_pulley*np.ones([2,1]),seg_nan_lr,'-',linewidth=5,color='#cc0000',animated=True)
+	(ph_ctr_seg,) = plt.plot(x_circ,seg_nan_ctr,'-',linewidth=5,color='#cc0000',animated=True)
+	(ph_rht_seg,) = plt.plot(r_pulley*np.ones([2,1]),seg_nan_lr,'-',linewidth=5,color='#cc0000',animated=True)
+	
+	# draw and cache initial plot
+	plt.show(block=False)
+	plt.pause(0.1)
+	bg = fig2.canvas.copy_from_bbox(fig2.bbox)
+	plt.gca().draw_artist(ph_lft_seg)
+	plt.gca().draw_artist(ph_ctr_seg)
+	plt.gca().draw_artist(ph_rht_seg)
+	plt.gca().draw_artist(ph_title)
+	fig2.canvas.blit(fig2.bbox)
+	
+	# step through animation
 	for i in np.arange(0,len(t.T),anim_step):
 		
 		# get current value of variable y (distance traveled)
 		t_now = t.T[i][0]
 		y = X[0,i]
 	
-		# format plot
-		fig2.clear()
-		title_text = "Time: {:6.3f}s"
-		plt.title(title_text.format(t_now),fontweight='bold')
-		plt.grid('on')
-		plt.xlim(-0.4, 0.4)
-		plt.ylim(-2.5,2*r_pulley)
-		plt.gca().set_aspect('equal', adjustable='box')
-		
-		# show pulley
-		art = patches.Circle((0, 0), 0.8*r_pulley,fill=True,facecolor='#000000')
-		plt.gca().add_patch(art)
+		# update plot
+		fig2.canvas.restore_region(bg)
 		
 		# show cable
 		if(y <= sysParams["L"]/2):
-			plt.plot(-1*r_pulley*np.ones([2,1]),np.array([[y-(sysParams["L"]/2)],[0]]),'-',linewidth=5,color='#cc0000');
-			plt.plot(x_circ,y_circ,'-',linewidth=5,color='#cc0000');
-			plt.plot(r_pulley*np.ones([2,1]),np.array([[0],[-(sysParams["L"]/2+y)]]),'-',linewidth=5,color='#cc0000')
+			ph_lft_seg.set_ydata(np.array([[y-(sysParams["L"]/2)],[0]]))
+			ph_ctr_seg.set_ydata(y_circ)
+			ph_rht_seg.set_ydata(np.array([[0],[-(sysParams["L"]/2+y)]]))
+			plt.gca().draw_artist(ph_lft_seg)
+			plt.gca().draw_artist(ph_ctr_seg)
+			plt.gca().draw_artist(ph_rht_seg)			
 		else:
-			plt.plot(r_pulley*np.ones([2,1]),(-y+(sysParams["L"]/2))+np.array([[0],[-sysParams["L"]]]),'-',linewidth=5,color='#cc0000')
+			ph_rht_seg.set_ydata((-y+(sysParams["L"]/2))+np.array([[0],[-sysParams["L"]]]))
+			plt.gca().draw_artist(ph_rht_seg)
+			
+		# add title
+		ph_title.set_text(title_text.format(t_now))
+		plt.gca().draw_artist(ph_title)
 		
 		# show current frame of animation
-		fig2.canvas.draw()
+		fig2.canvas.blit(fig2.bbox)
 		fig2.canvas.flush_events()
-		plt.pause(0.0001)
+		#plt.pause(0.00001)          # don't use plt.pause(), this is actually quite slow; instead change values of 'dt' and 'anim_step'
 	
 	# keep figures displayed after animation ends
 	plt.show(block=True)
