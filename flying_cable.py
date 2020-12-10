@@ -5,6 +5,7 @@
 
 import numpy as np
 from scipy import integrate
+import matplotlib
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import platform
