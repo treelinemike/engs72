@@ -5,6 +5,7 @@
 
 import numpy as np
 from scipy import integrate
+import matplotlib
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import platform
@@ -38,7 +39,7 @@ def StateProp(t, X):
  
 # main function for running ODE solver
 if __name__ == '__main__':
- 
+
 	# integrator selection
 	# dopri5 is a Dormand-Price Runge-Kutta 4/5 solver
 	r = integrate.ode(StateProp).set_integrator('dopri5')
@@ -85,6 +86,12 @@ if __name__ == '__main__':
 	y_dot = X[1,:]
 	E = 0.5*sysParams["m"]*y_dot**2 + sysParams["m"]*sysParams["g"]*y;
 	
+	# Mac OS is silly and doesn't support blitting
+	# so run matplotlib with the TkAgg backend
+	# see: https://retifrav.github.io/blog/2020/09/05/matplotlib-animation-macos/
+	if(platform.system() == "Darwin"):
+		matplotlib.use("TkAgg")
+ 
 	# plot results using matplotlib
 	t_bounds = [[t.T[0][0]],[t.T[len(t.T)-1][0]]]
 	fig = plt.figure(num=None,figsize=(10, 8))
@@ -109,7 +116,7 @@ if __name__ == '__main__':
 		
 	# animate results
 	fig2 = plt.figure(num=None,figsize=(4,10))
-
+	
 	# prepare plot
 	title_text = "Time: {:6.3f}s"
 	ph_title = plt.title(title_text.format(0),fontweight='bold',animated=True)	
@@ -152,12 +159,7 @@ if __name__ == '__main__':
 		# show current frame of animation
 		fig2.canvas.blit(fig2.bbox)
 		fig2.canvas.flush_events()
-		#plt.pause(0.00001)          # don't plt.pause(), this is actually quite slow; instead change values of 'dt' and 'anim_step'
+		#plt.pause(0.00001)          # actually don't use plt.pause(), this is actually quite slow; instead change values of 'dt' and 'anim_step'
 		
-		# blitting doesn't work on Mac (known issue?) so if we're on a Mac add the pause
-		if(platform.system() == "Darwin"):
-			plt.pause(0.00001)		
-
-
 	# keep figures displayed after animation ends
 	plt.show(block=True)
