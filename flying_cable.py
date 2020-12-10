@@ -95,6 +95,12 @@ if __name__ == '__main__':
 	E2_idx = offPulleyIdx = np.where(X[0,:] >= (sysParams["L"]/2))
 	E = np.concatenate((E1[E1_idx],E2[E2_idx]))
 	
+	# Mac OS is silly and doesn't support blitting
+	# so run matplotlib with the TkAgg backend
+	# see: https://retifrav.github.io/blog/2020/09/05/matplotlib-animation-macos/
+	if(platform.system() == "Darwin"):
+		matplotlib.use("TkAgg")
+	
 	# plot results using matplotlib
 	t_bounds = [[t.T[0][0]],[t.T[len(t.T)-1][0]]]
 	fig = plt.figure(num=None,figsize=(10, 8))
@@ -186,11 +192,10 @@ if __name__ == '__main__':
 		# show current frame of animation
 		fig2.canvas.blit(fig2.bbox)
 		fig2.canvas.flush_events()
-		#plt.pause(0.00001)          # don't use plt.pause(), this is actually quite slow; instead change values of 'dt' and 'anim_step'
-	
-		# blitting doesn't work on Mac (known issue?) so if we're on a Mac add the pause
-		if(platform.system() == "Darwin"):
-                        plt.pause(0.00001)      
+		#plt.pause(0.00001)          # actually don't use plt.pause(), this is actually quite slow; instead change values of 'dt' and 'anim_step'
 
-	# keep figures displayed after animation ends
-	plt.show(block=True)
+	# keep figures displayed after the animation ends
+	# unfortunately plt.show(block=True) clears the blitted animation in Mac OS with TkAgg backend
+	# so we'll just wait for a keypress instead
+	print("Press any key to exit.")
+	input()
