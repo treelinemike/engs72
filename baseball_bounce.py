@@ -161,5 +161,8 @@ if __name__ == '__main__':
 		fig2.canvas.flush_events()
 		#plt.pause(0.00001)          # actually don't use plt.pause(), this is actually quite slow; instead change values of 'dt' and 'anim_step'
 		
-	# keep figures displayed after animation ends
-	plt.show(block=True)
+	# keep figures displayed after the animation ends
+	# unfortunately plt.show(block=True) clears the blitted animation in Mac OS with TkAgg backend
+	# so we'll just wait for a keypress instead
+	print("Press any key to exit.")
+	input()
