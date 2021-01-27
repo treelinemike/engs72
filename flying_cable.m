@@ -19,10 +19,10 @@ t0 = 0;         % [s] simulation start time
 tf = 1.5;       % [s] simulation end time
 dt = 0.001;     % [s] timestep size
 
-% initial conditions (state vector: [y y_dot]')
-y_0     = 0.005;          % [m]       slight perturbation!
-y_dot_0 = 0;              % [m/s]
-X0      = [y_0 y_dot_0]'; % [m m/s]'
+% initial conditions (state vector: [s s_dot]')
+s_0     = 0.01;          % [m]       slight perturbation!
+s_dot_0 = 0;              % [m/s]
+X0      = [s_0 s_dot_0]'; % [m m/s]'
 X       = X0;             % [m m/s]'
 
 % system parameters
@@ -52,36 +52,40 @@ end
 % compute total energy in system (i.e. the Hamiltonian)
 % depends upon whether the cable is unwrapping around pulley (E1)
 % or falling freely (E2)
-y = data(1,:);
-y_dot = data(2,:);
-m1 = (sysParams.L/2)-y;
-m2 = (sysParams.L/2)+y;
+s = data(1,:);
+s_dot = data(2,:);
+m1 = (sysParams.L/2)-s;
+m2 = (sysParams.L/2)+s;
 m = m1+m2; % (== sysParams.L !)
-E1 = 0.5*(sysParams.rho*sysParams.L)*y_dot.^2 + sysParams.rho*sysParams.g*(0.25*sysParams.L^2-y.^2);
-E2 = 0.5*(sysParams.rho*sysParams.L)*y_dot.^2 + sysParams.rho*sysParams.g*(0.5*sysParams.L-y);
-Emask = (y <= 0.5*sysParams.L);
+E1 = 0.5*(sysParams.rho*sysParams.L)*s_dot.^2 + sysParams.rho*sysParams.g*(0.25*sysParams.L^2-s.^2);
+E2 = 0.5*(sysParams.rho*sysParams.L)*s_dot.^2 + sysParams.rho*sysParams.g*(0.5*sysParams.L-s);
+Emask = (s <= 0.5*sysParams.L);
 E = [E1(Emask)';E2(~Emask)'];
 
 % determine position and velocity at time when cable leaves pulley
-targetIdx = find(y >= sysParams.L/2,1,'first');
-fprintf('Cable leaves pulley at t = %5.3fs with v = %5.3fm/s\n',time(targetIdx),y_dot(targetIdx));
+targetIdx = find(s >= sysParams.L/2,1,'first');
+fprintf('Cable leaves pulley at t = %5.3fs with v = %5.3fm/s\n',time(targetIdx),s_dot(targetIdx));
 
 % plot results
 fid_plots = 1;
 figure(fid_plots);
 ah(1) = subplot(3,1,1);
 hold on; grid on;
-plot(time([1,end]),y(targetIdx)*ones(1,2),'-','LineWidth',1,'Color',[0.8 0.0 0.8]);
+plot(time([1,end]),s(targetIdx)*ones(1,2),'-','LineWidth',1,'Color',[0.8 0.0 0.8]);
 plot(time,data(1,:),'-','LineWidth',1.6,'Color',[0.0 0.0 0.8]);
+t_end = find( time <= sqrt(2*data(1,end)/sysParams.g),1,'last'); 
+plot(time(1:t_end),0.5*9.81*time(1:t_end).^2,'--','LineWidth',1.6,'Color',[0.0 0.0 0]);
 xlabel('\bfTime [sec]');
 ylabel('\bfDisplacement [m]');
 
 ah(2) = subplot(3,1,2);
 hold on; grid on;
-plot(time([1,end]),y_dot(targetIdx)*ones(1,2),'-','LineWidth',1,'Color',[0.8 0.0 0.8]);
+plot(time([1,end]),s_dot(targetIdx)*ones(1,2),'-','LineWidth',1,'Color',[0.8 0.0 0.8]);
 plot(time,data(2,:),'r-','LineWidth',1.6);
+t_end = find( time <= (data(2,end)/sysParams.g),1,'last'); 
+plot(time(1:t_end),9.81*time(1:t_end),'--','LineWidth',1.6,'Color',[0.0 0.0 0]);
 xlabel('\bfTime [sec]');
-ylabel('\bfVelocity [m/s]');
+ylabel('\bfSpeed [m/s]');
 
 ah(3) = subplot(3,1,3);
 hold on; grid on;
@@ -123,20 +127,20 @@ saveFrameIdx = 0;
 for tIdx = 1:anim_step:size(data,2)
     
     % extract state at current timestep
-    y = data(1,tIdx);
-    y_dot = data(2,tIdx);
+    s = data(1,tIdx);
+    s_dot = data(2,tIdx);
    
     % update elements in current plot
-    if(y <= sysParams.L/2)
-        ph_left.YData = [y-sysParams.L/2 0];
+    if(s <= sysParams.L/2)
+        ph_left.YData = [s-sysParams.L/2 0];
         ph_arc.XData = x_circ;
         ph_arc.YData = y_circ;
-        ph_right.YData = [0 -(sysParams.L/2+y)];
+        ph_right.YData = [0 -(sysParams.L/2+s)];
     else
         ph_left.YData = nan(1,2);
         ph_arc.XData = nan;
         ph_arc.YData = nan;
-        ph_right.YData = (-y+(sysParams.L/2))+[0 -sysParams.L];
+        ph_right.YData = (-s+(sysParams.L/2))+[0 -sysParams.L];
     end
     
     % update plot
@@ -169,20 +173,23 @@ L = sysParams.L;
 g = sysParams.g;
 
 % deconstruct state vector
-y     = X(1);
-y_dot = X(2);
+s     = X(1);
+s_dot = X(2);
 
 % construct Xdot from differential equation
 % note:     X    = [y y_dot]
 % therefore Xdot = [y_dot y_ddot]
 Xdot = zeros(2,1);
-Xdot(1,:) = y_dot;
+Xdot(1,:) = s_dot;
 
 % equation of motion changes based on whether
 % cable is unwinding or falling freely
-if(y <= L/2)
-    Xdot(2,:) = 2*y*g/L;
+if(s <= L/2)
+    Xdot(2,:) = 2*s*g/L;
 else
     Xdot(2,:) =  g;
 end
 end
+
+
+
