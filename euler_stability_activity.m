@@ -1,21 +1,21 @@
 % Simulate Euler's equations of motion for a rectangular board
 % Developed for ENGS 72, Thayer School of Engineering @ Dartmouth
 % Author: Mike Kokko
-% Updated: 17-Feb-2021
+% Updated: 18-Feb-2021
 
 % restart
 close all; clear; clc;
 
 % simulation time parameters
 t0 = 0;          % [s] simulation start time
-tf = 5;          % [s] simulation end time
+tf = 20;         % [s] simulation end time
 dt = 0.001;      % [s] timestep size
 anim_step = 50;  % skip this many frames to speed up animation
 
 % physical parameters of board
 rho = 0.4e3;                         % [kg/m^3] density
-l_x = 0.05;                          % [m] thickness along x
-l_y = 0.25;                          % [m] thickness along y
+l_x = 0.25;                          % [m] thickness along x
+l_y = 0.05;                          % [m] thickness along y
 l_z = 0.01;                          % [m] thickness along z
 V   = l_x*l_y*l_z;                   % [m^3] volume
 m   = rho*V;                         % [kg] mass
@@ -32,7 +32,7 @@ X = X0;
 time = [t0];
 data = [X0];
 
-% run simulation
+%% run simulation
 for t = t0:dt:(tf-dt)
     
     % calculate timestep for ODE solving
@@ -47,9 +47,9 @@ for t = t0:dt:(tf-dt)
     data(:,end+1) = X; % note: discarding state values at intermediate timesteps calculated by ode45()
 end
 
-%% Develop and display animation of motion
+%% develop and display animation of motion
 % define Cartesian frames
-h = 0.7*max([l_x, l_y, l_z]); % scaling parameter
+h = 0.9*max([l_x, l_y, l_z]); % scaling parameter
 triad_XYZ = h*[0 0 0; 1 0 0; 0 0 0; 0 1 0; 0 0 0; 0 0 1];
 triad_xyz_template = .8*triad_XYZ;
 
@@ -80,21 +80,21 @@ figure;
 hold on; grid on;
 
 % plot each structure and grab handles for blitting
-ph_XYZ = plot3(triad_XYZ(:,1),triad_XYZ(:,2),triad_XYZ(:,3),'LineWidth',4,'Color','k');
-ph_xyz_x = plot3(nan(1,2),nan(1,2),nan(1,2),'LineWidth',3,'Color',[0.7 0 0]);
-ph_xyz_y = plot3(nan(1,2),nan(1,2),nan(1,2),'LineWidth',3,'Color',[0 0.7 0]);
-ph_xyz_z = plot3(nan(1,2),nan(1,2),nan(1,2),'LineWidth',3,'Color',[0 0 0.7]);
+ph.XYZ = plot3(triad_XYZ(:,1),triad_XYZ(:,2),triad_XYZ(:,3),'LineWidth',4,'Color','k');
+ph.xyz_x = plot3(nan(1,2),nan(1,2),nan(1,2),'LineWidth',3,'Color',[0.7 0 0]);
+ph.xyz_y = plot3(nan(1,2),nan(1,2),nan(1,2),'LineWidth',3,'Color',[0 0.7 0]);
+ph.xyz_z = plot3(nan(1,2),nan(1,2),nan(1,2),'LineWidth',3,'Color',[0 0 0.7]);
 
 % plot angular velocity and angular momentum for blitting
-ph_omega = plot3(nan(1,2),nan(1,2),nan(1,2),':','LineWidth',3','Color',[1 0 1]);
-ph_H = plot3(nan(1,2),nan(1,2),nan(1,2),':','LineWidth',3','Color',[0 1 1]);
+ph.omega = plot3(nan(1,2),nan(1,2),nan(1,2),':','LineWidth',3','Color',[1 0 1]);
+ph.H = plot3(nan(1,2),nan(1,2),nan(1,2),':','LineWidth',3','Color',[0 1 1]);
 
 % plot patch body for blitting
-ph_patch = patch('Faces',board.f,'Vertices',nan(size(board.v)),'FaceColor','flat','EdgeColor','none','LineWidth',1,'FaceVertexCData',board.c);
+ph.patch = patch('Faces',board.f,'Vertices',nan(size(board.v)),'FaceColor','flat','EdgeColor','none','LineWidth',1,'FaceVertexCData',board.c);
 
-% add legend
-title('\bfEuler Motion Simulation');
-legend([ph_omega,ph_H],{'Angular Velocity','Angular Momentum'},'Location','southoutside','AutoUpdate','off');
+% add additional plot features
+th = title('');
+legend([ph.omega,ph.H],{'Angular Velocity','Angular Momentum'},'Location','southoutside','AutoUpdate','off');
 xlabel('\bfx');
 ylabel('\bfy');
 zlabel('\bfz');
@@ -129,39 +129,65 @@ for tIdx = 2:size(data,2)
         Hcm_XYZ = R*Hcm_xyz;
         
         % blit the body xyz frame
-        ph_xyz_x.XData = [triad_xyz(1,1) triad_xyz(2,1)];
-        ph_xyz_x.YData = [triad_xyz(1,2) triad_xyz(2,2)];
-        ph_xyz_x.ZData = [triad_xyz(1,3) triad_xyz(2,3)];
-        ph_xyz_y.XData = [triad_xyz(3,1) triad_xyz(4,1)];
-        ph_xyz_y.YData = [triad_xyz(3,2) triad_xyz(4,2)];
-        ph_xyz_y.ZData = [triad_xyz(3,3) triad_xyz(4,3)];
-        ph_xyz_z.XData = [triad_xyz(5,1) triad_xyz(6,1)];
-        ph_xyz_z.YData = [triad_xyz(5,2) triad_xyz(6,2)];
-        ph_xyz_z.ZData = [triad_xyz(5,3) triad_xyz(6,3)];
+        ph.xyz_x.XData = [triad_xyz(1,1) triad_xyz(2,1)];
+        ph.xyz_x.YData = [triad_xyz(1,2) triad_xyz(2,2)];
+        ph.xyz_x.ZData = [triad_xyz(1,3) triad_xyz(2,3)];
+        ph.xyz_y.XData = [triad_xyz(3,1) triad_xyz(4,1)];
+        ph.xyz_y.YData = [triad_xyz(3,2) triad_xyz(4,2)];
+        ph.xyz_y.ZData = [triad_xyz(3,3) triad_xyz(4,3)];
+        ph.xyz_z.XData = [triad_xyz(5,1) triad_xyz(6,1)];
+        ph.xyz_z.YData = [triad_xyz(5,2) triad_xyz(6,2)];
+        ph.xyz_z.ZData = [triad_xyz(5,3) triad_xyz(6,3)];
         
         % normalize and plot angular velocity and momentum
         omega_norm = 2.6*omega_XYZ/norm(omega_XYZ);
         Hcm_norm = 2.6*Hcm_XYZ/norm(Hcm_XYZ);
-        ph_omega.XData = [0 omega_norm(1)];
-        ph_omega.YData = [0 omega_norm(2)];
-        ph_omega.ZData = [0 omega_norm(3)];
-        ph_H.XData = [0 Hcm_norm(1)];
-        ph_H.YData = [0 Hcm_norm(2)];
-        ph_H.ZData = [0 Hcm_norm(3)];
+        ph.omega.XData = [0 omega_norm(1)];
+        ph.omega.YData = [0 omega_norm(2)];
+        ph.omega.ZData = [0 omega_norm(3)];
+        ph.H.XData = [0 Hcm_norm(1)];
+        ph.H.YData = [0 Hcm_norm(2)];
+        ph.H.ZData = [0 Hcm_norm(3)];
                 
         % plot board as patch object
-        ph_patch.Vertices = board.vrot;
+        ph.patch.Vertices = board.vrot;
         
         % finish formatting axes
         axis equal;
         xlim([-h h]);
         ylim([-h h]);
         zlim([-h h]);       
+        th.String = sprintf('Euler Motion Sim (%6.3fs)',time(tIdx));
         drawnow;
     end
 end
 
-% propagate state
+%% plot angular velocity trajectories
+figure;
+ax = subplot(3,1,1);
+hold on; grid on;
+plot(time,data(4,:),'-','Color',[0.8 0 0],'LineWidth',1.6);
+xlabel('\bfTime [sec]');
+ylabel('\bfw_x [rad/s]');
+
+ax(end+1) = subplot(3,1,2);
+hold on; grid on;
+plot(time,data(5,:),'-','Color',[0 0.8 0],'LineWidth',1.6);
+xlabel('\bfTime [sec]');
+ylabel('\bfw_y [rad/s]');
+
+ax(end+1) = subplot(3,1,3);
+hold on; grid on;
+plot(time,data(6,:),'-','Color',[0 0 0.8],'LineWidth',1.6);
+xlabel('\bfTime [sec]');
+ylabel('\bfw_z [rad/s]');
+
+% set axis limits
+linkaxes(ax,'xy');
+xlim(time([1 end]));
+ylim([ min([0, min(min(data(4:6,:)))]) max([0, max(max(data(4:6,:)))]) ]);
+
+%% state propagation function
 function Xdot = simpleEulerSimStateProp(t,X,Icm)
 
 % recover moments of inertia
@@ -184,7 +210,7 @@ Xdot = zeros(6,1);
 Xdot(1,:) = omega_x;
 Xdot(2,:) = omega_y;
 Xdot(3,:) = omega_z;
-Xdot(4,:) = ???;         % REPLACE ??? WITH EXPRESSION FOR ALPHA_X
-Xdot(5,:) = ???;         % REPLACE ??? WITH EXPRESSION FOR ALPHA_Y
-Xdot(6,:) = ???;         % REPLACE ??? WITH EXPRESSION FOR ALPHA_Z
+Xdot(4,:) = ???;      % REPLACE ??? WITH EXPRESSION FOR ALPHA_X
+Xdot(5,:) = ???;      % REPLACE ??? WITH EXPRESSION FOR ALPHA_Y
+Xdot(6,:) = ???;      % REPLACE ??? WITH EXPRESSION FOR ALPHA_Z
 end
