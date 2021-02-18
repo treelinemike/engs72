@@ -184,7 +184,7 @@ Xdot = zeros(6,1);
 Xdot(1,:) = omega_x;
 Xdot(2,:) = omega_y;
 Xdot(3,:) = omega_z;
-Xdot(4,:) = (omega_y*omega_z*(Iyy-Izz))/Ixx;
-Xdot(5,:) = (omega_z*omega_x*(Izz-Ixx))/Iyy;
-Xdot(6,:) = (omega_x*omega_y*(Ixx-Iyy))/Izz;
+Xdot(4,:) = ???;         % REPLACE ??? WITH EXPRESSION FOR ALPHA_X
+Xdot(5,:) = ???;         % REPLACE ??? WITH EXPRESSION FOR ALPHA_Y
+Xdot(6,:) = ???;         % REPLACE ??? WITH EXPRESSION FOR ALPHA_Z
 end
