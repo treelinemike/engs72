@@ -25,7 +25,7 @@ Izz = (1/12)*m*(l_x^2+l_y^2);        % moment of inertia about body z axis
 Icm  = [Ixx 0 0; 0 Iyy 0; 0 0 Izz];  % inertia matrix taken at CM about principal axes
 
 % initial conditions X0 = [theta_x_0 theta_y_0 theta_z_0 omega_x_0 omega_y_0 omega_z_0]
-X0 = [0 0 0 0 0 2]'; % [rad rad rad rad/s rad/s rad/s]'
+X0 = [0 0 0 0 2 0.2]'; % [rad rad rad rad/s rad/s rad/s]'
 X = X0;
 
 % data storage
