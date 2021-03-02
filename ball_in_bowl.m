@@ -78,7 +78,7 @@ ah(3) = subplot(3,1,3);
 hold on; grid on;
 plot(time,E-E(1),'-','LineWidth',1.6,'Color',[0 0.7 0]);
 xlabel('\bfTime [sec]');
-ylabel('\bfDelta Energy [J]');
+ylabel('\bfΔ Energy [J]');
 
 linkaxes(ah,'x');
 drawnow;
