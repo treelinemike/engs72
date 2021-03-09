@@ -31,7 +31,7 @@ X = X0;
 % system parameters
 sysParams.m = 0.003384; % [kg] ball mass
 sysParams.g = 9.81;     % [m/s^2]  acceleration of gravity
-sysParams.R = 0.0525;   % [m] radius of bowl
+sysParams.R = 0.05808;  % [m] radius of bowl, measured via CMM 09-Mar-21 (Kori Jevsevar)
 sysParams.r = 0.0095;   % [m] radius of ball
 
 % data storage
