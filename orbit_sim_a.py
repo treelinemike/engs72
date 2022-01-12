@@ -1,8 +1,11 @@
-# Orbit Simulation
+# Simple Orbit Simulation
+# Author: Mike Kokko
+# Modified: 11-Jan-2022
+#
 # For introducing a basic method of solving simple ODEs numerically
 # REQUIRES PYTHON 3
-# Uses blitting to speed up animation (doesn't work on Mac), see: https://matplotlib.org/3.3.0/tutorials/advanced/blitting.html
-
+# Uses blitting to speed up animation (probably doesn't work on Mac), see: https://matplotlib.org/3.3.0/tutorials/advanced/blitting.html
+#
 import numpy as np
 from scipy import integrate
 import matplotlib
@@ -39,7 +42,7 @@ def StateProp(t, X):
     Xdot[0] = r_dot
     Xdot[1] = r*theta_dot**2 - (sysParams["G"]*sysParams["M"])/(r**2)
     Xdot[2] = theta_dot
-    Xdot[3] = -1*(2*r_dot*theta_dot)/r
+    Xdot[3] = -1*(2*r_dot*theta_dot)/r  
     
     return Xdot
 
@@ -61,24 +64,17 @@ if __name__ == '__main__':
     nSteps = int(np.floor(((tf-t0)/dt)+1))
     
     # initial conditions
-    r_0 = 2.594e7 # [m]
+    r_0 = 6.781e6 # [m]
     r_dot_0 = 0 # [m/s]    
     theta_0 = 0 # [rad]
-    theta_dot_0 = 4166.67/(r_0)# [rad/s]
+    theta_dot_0 = 7670/(r_0)# [rad/s]
 
-    # initial conditions
-    #r_0 = 7.3035e6 # [m]
-    #r_dot_0 = 0 # [m/s]    
-    #theta_0 = 0 # [rad]
-    #theta_dot_0 = 7.086e10/(r_0**2)# [rad/s]
-
-    
+    # apply initial conditions
     X0 = np.zeros((4,1))
     X0[0] = r_0          # [m]
     X0[1] = r_dot_0      # [m/s]
     X0[2] = theta_0      # [rad]
-    X0[3] = theta_dot_0  # [rad/s]
-    
+    X0[3] = theta_dot_0  # [rad/s]    
     r.set_initial_value(X0, t0)
  
     # data storage
@@ -91,28 +87,26 @@ if __name__ == '__main__':
     k = 1
     while r.successful() and k < nSteps and (not sysParams["done"]):
     
+        # check for collision with Earth or complete orbit
         if((X[0,k-1] < sysParams["re"]) or (X[2,k-1] > 2*math.pi)):
             sysParams["done"] = True
         
+        # propagate state
         r.integrate(r.t + dt)
         t[0,k] = r.t
         X[:,k] = r.y.T
         k += 1
  
 
-    # compute total energy in system (i.e. the Hamiltonian)
-    # depends upon whether the cable is unwrapping around pulley (E1)
-    # or falling freely (E2)
-    # y = X[0,:]
-    # y_dot = X[1,:]
-    # E = 0.5*sysParams["m"]*y_dot**2 + sysParams["m"]*sysParams["g"]*y;
+    # TODO: compute total energy in system (i.e. the Hamiltonian)
     
     # Mac OS is silly and doesn't support blitting
     # so run matplotlib with the TkAgg backend
     # see: https://retifrav.github.io/blog/2020/09/05/matplotlib-animation-macos/
     if(platform.system() == "Darwin"):
         matplotlib.use("TkAgg")
- 
+
+    # extract and compute orbit trajectory parameters
     r = X[0,0:k-1]
     r_dot = X[1,0:k-1]
     theta = X[2,0:k-1]
@@ -121,26 +115,23 @@ if __name__ == '__main__':
     y = r*numpy.sin(theta)
     v = numpy.sqrt( (r_dot)**2 + (r*theta_dot)**2 )
  
-    # plot results using matplotlib
+    # plot position using matplotlib
     t_bounds = [[t.T[0][0]],[t.T[len(t.T)-1][0]]]
     fig = plt.figure(num=None)
-    #fig = plt.figure(num=None,figsize=(10, 8))
-    #plt.subplot(311)
+    plt.subplot(211)
+    plt.plot(t.T[0:k-1]/60, r,'-',linewidth=3,color='#0000CC')
+    plt.grid('on')
+    plt.xlabel('Time [min]',fontweight='bold')
+    plt.ylabel('Radius [m]',fontweight='bold')
+
+    # plot speed using matplotlib    
+    plt.subplot(212)
     plt.plot(t.T[0:k-1]/60, v,'-',linewidth=3,color='#0000CC')
     plt.grid('on')
     plt.xlabel('Time [min]',fontweight='bold')
     plt.ylabel('Speed [m/s]',fontweight='bold')
-    #plt.subplot(312)
-    #plt.plot(t.T, X[1,:],'-',linewidth=3,color='#CC0000')
-    #plt.grid('on')
-    #plt.xlabel('Time [s]',fontweight='bold')
-    #plt.ylabel('Speed [m/s]',fontweight='bold')    
-    #plt.show(block=False)  
-    #plt.subplot(313)
-    #plt.plot(t.T,E,'-',linewidth=3,color='#00CC00')
-    #plt.grid('on')
-    #plt.xlabel('Time [s]',fontweight='bold')
-    #plt.ylabel('Energy [J]',fontweight='bold')    
+    
+    # finish formatting plot
     fig.tight_layout()
     fig.canvas.draw() 
         
@@ -157,7 +148,6 @@ if __name__ == '__main__':
     ax.set(facecolor = "black")
     plt.gca().set_aspect('equal', adjustable='box')
     
-    
     # draw background
     earth = patches.Circle((0,0),radius=sysParams["re"],fill=True,facecolor='#6666FF',animated=False)
     plt.gca().add_patch(earth)
@@ -166,7 +156,6 @@ if __name__ == '__main__':
     # draw satellite
     plt.gca().plot(x[0],y[0],'o',markersize=10,markeredgewidth=5,markerfacecolor='#FF00FF', markeredgecolor='#FF00FF',animated=False)
     (ph_sat,) = plt.gca().plot(0,np.nan,'o',markersize=5,markeredgewidth=5,markerfacecolor='#FFFF00', markeredgecolor='#FFFF00',animated=True)
-    
     
     # draw and cache initial plot
     plt.show(block=False)
@@ -197,7 +186,7 @@ if __name__ == '__main__':
         # show current frame of animation
         fig2.canvas.blit(fig2.bbox)
         fig2.canvas.flush_events()
-        #plt.pause(0.00001)          # actually don't use plt.pause(), this is actually quite slow; instead change values of 'dt' and 'anim_step'
+        #plt.pause(0.00001)          # on second thought, don't use plt.pause(), this is actually quite slow; instead change values of 'dt' and 'anim_step'
         
     # keep figures displayed after the animation ends
     # unfortunately plt.show(block=True) clears the blitted animation in Mac OS with TkAgg backend

@@ -17,7 +17,7 @@ videoFrameRate = 30; % [frames/sec]
 % simulation time parameters    
 t0 = 0;         % [s] simulation start time
 tf = 4;         % [s] simulation end time
-dt = 0.015;     % [s] timestep size
+dt = 0.01;     % [s] timestep size
 opts = odeset('RelTol',1e-8,'AbsTol',1e-12);
 
 % initial conditions (state vector: [x x_dot theta theta_dot]')
