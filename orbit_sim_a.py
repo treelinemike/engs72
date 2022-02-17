@@ -55,7 +55,7 @@ if __name__ == '__main__':
     r = integrate.ode(StateProp).set_integrator('dopri5')
  
     # speed up animation by skipping this many frames between refreshing plot
-    anim_step = 20
+    anim_step = 5
  
     # integration time period
     t0 = 0.0
@@ -64,10 +64,10 @@ if __name__ == '__main__':
     nSteps = int(np.floor(((tf-t0)/dt)+1))
     
     # initial conditions
-    r_0 = 6.781e6 # [m]
+    r_0 = 6.731e6 # [m]
     r_dot_0 = 0 # [m/s]    
     theta_0 = 0 # [rad]
-    theta_dot_0 = 7670/(r_0)# [rad/s]
+    theta_dot_0 = 8215.8/(r_0)# [rad/s]
 
     # apply initial conditions
     X0 = np.zeros((4,1))

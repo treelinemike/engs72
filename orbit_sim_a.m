@@ -11,7 +11,7 @@ end
 
 % general options
 anim_step = 1; % speed up animation by skipping this many frames between refreshing plot
-doAnimate = 0;
+doAnimate = 1;
 doMakeVideo = 0; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
 videoFileName = 'orbit';
 videoFrameRate = 400; % [frames/sec]
@@ -24,16 +24,16 @@ dt = 5;         % [s] timestep size
 % initial conditions
 
 % Class Example Problem
-% r_0 = 6.731e6;             % [m]
-% r_dot_0 = 0;               % [m/s]
-% theta_0 = 0;               % [rad]
-% theta_dot_0 = 8215/(r_0);  % [rad/s]
-
-% ISS
-r_0 = 6.781e6;             % [m]
+r_0 = 6.731e6;             % [m]
 r_dot_0 = 0;               % [m/s]
 theta_0 = 0;               % [rad]
-theta_dot_0 = 7667/(r_0);  % [rad/s]
+theta_dot_0 = 8215/(r_0);  % [rad/s]
+
+% ISS
+% r_0 = 6.781e6;             % [m]
+% r_dot_0 = 0;               % [m/s]
+% theta_0 = 0;               % [rad]
+% theta_dot_0 = 7667/(r_0);  % [rad/s]
 
 % PS #2
 % r_0 = 2.594e7;                   % [m]

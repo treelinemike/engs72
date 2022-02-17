@@ -13,7 +13,7 @@ end
 
 % general options
 anim_step = 3; % speed up animation by skipping this many frames between refreshing plot
-doMakeVideo = 0; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
+doMakeVideo = 1; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
 videoFileName = 'ball_in_bowl';
 videoFrameRate = 100; % [frames/sec]
 
