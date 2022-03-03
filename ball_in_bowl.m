@@ -2,7 +2,7 @@
 % Using nonlinear differential equation
 % Activity for ENGS 72: Dynamics, Thayer School of Engineering at Dartmouth
 % Author: Mike Kokko
-% Modified: 01-Mar-2021
+% Modified: 02-Mar-2022
 
 % restart
 close all; clear; clc;
@@ -23,7 +23,7 @@ tf = 1.0;       % [s] simulation end time
 dt = 0.001;     % [s] timestep size
 
 % initial conditions (state vector: [phi phi_dot]')
-phi_0     =  5*pi/180;   % [rad]
+phi_0     =  65*pi/180;   % [rad]
 phi_dot_0 = 0;           % [rad/s]
 X0 = [phi_0 phi_dot_0]'; % [rad rad/s]'
 X = X0;
