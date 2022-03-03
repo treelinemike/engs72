@@ -13,7 +13,7 @@ end
 
 % general options
 anim_step = 3; % speed up animation by skipping this many frames between refreshing plot
-doMakeVideo = 1; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
+doMakeVideo = 0; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
 videoFileName = 'ball_in_bowl';
 videoFrameRate = 100; % [frames/sec]
 
@@ -23,7 +23,7 @@ tf = 1.0;       % [s] simulation end time
 dt = 0.001;     % [s] timestep size
 
 % initial conditions (state vector: [phi phi_dot]')
-phi_0     = 45*pi/180;   % [rad]
+phi_0     =  5*pi/180;   % [rad]
 phi_dot_0 = 0;           % [rad/s]
 X0 = [phi_0 phi_dot_0]'; % [rad rad/s]'
 X = X0;
@@ -60,17 +60,33 @@ theta_dot = (-1*(sysParams.R-sysParams.r)/sysParams.r)*phi_dot;
 Izz_cm = (2/5)*sysParams.m*sysParams.r^2;
 E = 0.5*sysParams.m*((sysParams.R-sysParams.r)*phi_dot).^2 + 0.5*Izz_cm*(theta_dot.^2) + sysParams.m*sysParams.g*(sysParams.R-sysParams.r)*(1-cos(phi));
 
+% compute linearized solution
+omega_n = sqrt(5*sysParams.g/(7*(sysParams.R-sysParams.r)));
+phi_linear = phi_0*cos(omega_n*time);
+phi_dot_linear = -1*phi_0*omega_n*sin(omega_n*time);
+
+% compute actual period
+period_linear = 2*pi/omega_n;
+period_linear_idx = period_linear/dt;
+search_offset = floor(period_linear_idx/2);
+peak_index = find(abs(data(1,search_offset:end)-data(1,1)) < 0.0001,1,'first') + search_offset -1;
+period_actual = time(peak_index);
+fprintf('Actual period: %0.3fs; linearized period: %0.3fs\n',period_actual,period_linear);
+
 % plot results
 figure;
 ah(1) = subplot(3,1,1);
 hold on; grid on;
 plot(time,data(1,:),'b-','LineWidth',1.6);
+plot(time,phi_linear,'b--','LineWidth',1.6);
 xlabel('\bfTime [sec]');
 ylabel('\bfPosition [rad]');
+legend('Actual','Linearized');
 
 ah(2) = subplot(3,1,2);
 hold on; grid on;
 plot(time,data(2,:),'r-','LineWidth',1.6);
+plot(time,phi_dot_linear,'r--','LineWidth',1.6);
 xlabel('\bfTime [sec]');
 ylabel('\bfSpeed [rad/s]');
 
