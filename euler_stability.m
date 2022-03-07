@@ -15,7 +15,7 @@ anim_step = 50;  % skip this many frames to speed up animation
 % physical parameters of board
 rho = 0.4e3;                         % [kg/m^3] density
 l_x = 0.25;                          % [m] thickness along x
-l_y = 0.05;                          % [m] thickness along y
+l_y = 0.10;                          % [m] thickness along y
 l_z = 0.01;                          % [m] thickness along z
 V   = l_x*l_y*l_z;                   % [m^3] volume
 m   = rho*V;                         % [kg] mass
@@ -25,7 +25,7 @@ Izz = (1/12)*m*(l_x^2+l_y^2);        % moment of inertia about body z axis
 Icm  = [Ixx 0 0; 0 Iyy 0; 0 0 Izz];  % inertia matrix taken at CM about principal axes
 
 % initial conditions X0 = [theta_x_0 theta_y_0 theta_z_0 omega_x_0 omega_y_0 omega_z_0]
-X0 = [0 0 0 0 2 0.2]'; % [rad rad rad rad/s rad/s rad/s]'
+X0 = [0 0 0 0 2 0.1]'; % [rad rad rad rad/s rad/s rad/s]'
 X = X0;
 
 % data storage

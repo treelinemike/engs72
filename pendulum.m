@@ -11,7 +11,7 @@ if(ismac)
 end
 
 % general options
-anim_step = 5; % speed up animation by skipping this many frames between refreshing plot
+anim_step = 10; % speed up animation by skipping this many frames between refreshing plot
 doMakeVideo = 0; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
 videoFileName = 'pendulum';
 videoFrameRate = 20; % [frames/sec]
@@ -20,7 +20,7 @@ videoFrameRate = 20; % [frames/sec]
 t0 = 0;      % [s] simulation start time
 tf = 10;     % [s] simulation end time
 dt = 0.01;   % [s] timestep size
-opts = odeset('RelTol',1e-8,'AbsTol',1e-12);
+opts = odeset('RelTol',1e-6,'AbsTol',1e-8);
 
 % define parameters for cases to analyze
 sysParams = [];

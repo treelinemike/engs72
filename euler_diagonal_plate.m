@@ -6,11 +6,11 @@
 % restart
 close all; clear all; clc;
 
-% general options
-anim_step = 10; % skip this many frames to speed up animation
-doMakeVideo = 0; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
-videoFileName = 'euler_diagonal_plate';
-videoFrameRate = 300; % [frames/sec]
+            % general options
+            anim_step = 10; % skip this many frames to speed up animation
+            doMakeVideo = 0; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
+            videoFileName = 'euler_diagonal_plate';
+            videoFrameRate = 300; % [frames/sec]
 
 % simulation time parameters
 t0 = 0;         % [s] simulation start time
