@@ -1,6 +1,6 @@
 % Simple Orbit Simulation
 % Author: Mike Kokko
-% Modified: 11-Jan-2022
+% Modified: 10-Jan-2023
 
 % restart
 close all; clear; clc;
@@ -10,8 +10,8 @@ if(ismac)
 end
 
 % general options
-anim_step = 1; % speed up animation by skipping this many frames between refreshing plot
-doAnimate = 0;
+anim_step = 5; % speed up animation by skipping this many frames between refreshing plot
+doAnimate = 1;
 doMakeVideo = 0; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
 videoFileName = 'orbit';
 videoFrameRate = 400; % [frames/sec]
@@ -22,12 +22,29 @@ tf = 200000;    % [s] simulation end time
 dt = 5;         % [s] timestep size
 
 % initial conditions
-r_0 = <<ENTER RADIUS HERE>>;               % [m]
-r_dot_0 = 0;                               % [m/s]
-theta_0 = 0;                               % [rad]
-theta_dot_0 = <<ENTER SPEED HERE>>/(r_0);  % [rad/s]
 
-% apply initial conditions  
+% Class Example Problem
+% r_0 = 6.731e6;               % [m]
+% r_dot_0 = 0;                 % [m/s]
+% theta_0 = 0;                 % [rad]
+% theta_dot_0 = 8215.8/(r_0);  % [rad/s]
+
+% ISS
+% r_0 = 6.781e6;             % [m]
+% r_dot_0 = 0;               % [m/s]
+% theta_0 = 0;               % [rad]
+% theta_dot_0 = 7667/(r_0);  % [rad/s]
+
+% Insert away from perigee (unusual!)
+% v0 = 8200;
+% phi = 5*pi/180;
+% r_0 = 6.781e6;
+% r_dot_0 = v0*sin(phi);
+% theta_0 = 0;
+% theta_dot_0 = (1/r_0)*v0*cos(phi);
+
+% apply initial conditions
+% STATE VECTOR X = [r r_dot theta theta_dot]
 X0 = [r_0 r_dot_0 theta_0 theta_dot_0]';   % [m m/s rad rad/s]'
 X = X0;
 
@@ -75,7 +92,6 @@ theta = data(3,:);
 theta_dot = data(4,:);
 theta_ddot = gradient(theta_dot,time);
 
-% compute orbit trajectory parameters
 x = r.*cos(theta);
 y = r.*sin(theta);
 dxdt = gradient(x,time);
@@ -228,11 +244,11 @@ r_dot     = X(2);
 theta_dot = X(4);
 
 % construct Xdot from differential equation
-% note:     X    = [y y_dot]
-% therefore Xdot = [y_dot y_ddot]
+% note:     X    = [r      r_dot   theta      theta_dot ]'
+% therefore Xdot = [r_dot  r_ddot  theta_dot  theta_ddot]'
 Xdot = zeros(4,1);
 Xdot(1,:) = r_dot;
-Xdot(2,:) = <<ENTER R DOUBLE DOT EXPRESSION HERE>>;
+Xdot(2,:) = %%%% ENTER YOUR EXPRESSION FOR r_ddot HERE %%%%
 Xdot(3,:) = theta_dot;
-Xdot(4,:) = <<ENTER THETA DOUBLE DOT EXPRESSION HERE>>;
+Xdot(4,:) = %%%% ENTER YOUR EXPRESSION FOR theta_ddot HERE %%%%
 end
