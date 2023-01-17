@@ -1,4 +1,4 @@
-% Simulation of scooting a chair/sled forward w/o touching ground
+% Simplified simulation of scooting a chair/sled forward w/o touching ground
 % Author:  Mike Kokko
 % Updated: 17-Jan-2023
 
@@ -6,21 +6,21 @@
 close all; clear; clc;
 
 % parameters
-sysParams.m_a   = 70;    % [kg]
-sysParams.m_b   = 10;    % [kg]
-sysParams.mu_s  = 0.20;
-sysParams.mu_k  = 0.10;
-sysParams.g     = 9.81;  % [m/s^2]
-sysParams.P_fwd = 70;    % [N]
-sysParams.P_rev = -600;  % [N]
-sysParams.A_len = 0.25;  % [m]
+sysParams.m_a   = 12;    % [kg] chair mass
+sysParams.m_b   = 75;    % [kg] person mass
+sysParams.mu_s  = 0.30;  % coefficient of static friction
+sysParams.mu_k  = 0.20;  % coefficient of kinetic friction
+sysParams.g     = 9.81;  % [m/s^2] acceleration of gravity
+sysParams.P_fwd = 4;     % [N] force pushing person CM forward (static)
+sysParams.P_rev = -265;  % [N] force flinging person CM backward (dynamic) -- this should be negative!
+sysParams.A_len = 0.3;   % [m] length over which person CM moves/slides
 sysParams.Fn01  = (sysParams.m_a + sysParams.m_b)*sysParams.g;
 sysParams.mode = 1;
 sysParams.Ff = nan;
 
 % simulation time parameters
 t0 = 0;        % [s] simulation start time
-tf = 4.0;      % [s] simulation end time
+tf = 6.0;      % [s] simulation end time
 dt = 0.001;    % [s] timestep size
 
 % initial conditions
@@ -38,10 +38,10 @@ assert(abs(sysParams.P_rev) > sysParams.mu_s*sysParams.Fn01,'Reverse force too s
 
 % run simulation
 for t = t0:dt:(tf-dt)
-    
+
     % calculate timestep for ODE solving
     odeTime = [t t+dt];
-    
+
     % extract from state vector
     x_a = X(1);
     x_a_dot = X(2);
@@ -63,11 +63,10 @@ for t = t0:dt:(tf-dt)
                 X(2) = v_new;
                 X(4) = v_new;
                 sysParams.mode = 2;
-%                 fprintf('switching to state 2, v_new = %0.4f m/s\n',v_new);
+                %                 fprintf('switching to state 2, v_new = %0.4f m/s\n',v_new);
             end
         case 2
-            % masses linked/locked sliding forward subject to kinetic
-            % friction
+            % masses linked/locked sliding forward subject to kinetic friction
             % wait for motion to stop
             % set into state 3:
             % - push mass B backwards strongly
@@ -76,7 +75,7 @@ for t = t0:dt:(tf-dt)
                 X(2) = 0;
                 X(4) = 0;
                 sysParams.mode = 3;
-%                 fprintf('switching to state 3\n');
+                %                 fprintf('switching to state 3\n');
             end
         case 3
             % mass a sliding on ground while mass b forced backward
@@ -91,12 +90,11 @@ for t = t0:dt:(tf-dt)
                 X(4) = v_new;
                 sysParams.Ff = -1*sign(v_new)*sysParams.mu_k*sysParams.Fn01;
                 sysParams.mode = 4;
-%                 fprintf('switching to state 4, x_a_dot was %0.4f, v_new = %0.4f m/s\n',x_a_dot,v_new);
+                %                 fprintf('switching to state 4, x_a_dot was %0.4f, v_new = %0.4f m/s\n',x_a_dot,v_new);
             end
         case 4
-            % masses linked/locked sliding together subject to kinetic
-            % friction
-            % wait for motin to stop
+            % masses linked/locked sliding together subject to kinetic friction
+            % wait for motion to stop
             % set into state 1:
             % - push mass A forward weakly
             % - static friction
@@ -105,14 +103,14 @@ for t = t0:dt:(tf-dt)
                 X(2) = 0;
                 X(4) = 0;
                 sysParams.mode = 1;
-%                 fprintf('switching to state 1\n');
+                %                 fprintf('switching to state 1\n');
             end
     end
 
     % propagate state
     [T,X] = ode45(@(t,X) stateProp(t,X,sysParams),odeTime,X);
     X = X(end, :)';  % note: this step is necessary to keep state vector dimensions correct for next call to ode45()
-    
+
     % store results from this timestep
     time(end+1)   = T(end);
     data(:,end+1) = X; % note: discarding state values at intermediate timesteps calculated by ode45()
@@ -121,12 +119,13 @@ end
 
 %% animate results
 figure;
+set(gcf,'Position',[0680 0751 0560 0227]);
 hold on;
 grid on; axis equal;
 ph_a = plot([nan nan],[0 0],'-','LineWidth',4,'Color',[0 0 0.8]);
-ph_b = plot(nan,0,'.','MarkerSize',20,'Color',[0.8 0 0]);
-xlim ([0 0.5]);
-ylim([-0.5 0.5]);
+ph_b = plot(nan,0,'.','MarkerSize',50,'Color',[0.8 0 0]);
+xlim ([min(data(1,:)) max(data(1,:))+sysParams.A_len]);
+ylim(0.1*max(xlim)*[-1 1]);
 th = title(sprintf('%8.3fs',0));
 
 for t_idx = 1:50:length(time)
@@ -195,6 +194,8 @@ switch(sysParams.mode)
 end
 end
 
+% generate figure with time on x axis
+% and colored bands indicating when system is in each mode
 function fh = generateModeFig(time,mode_data,ymin,ymax)
 mode_colors = [ 0.8 0 0; 0 0.8 0; 0 0 0.8; 0.8 0.8 0];
 fh = figure;
