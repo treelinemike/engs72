@@ -144,7 +144,7 @@ set(gcf,'Position',[0323 0374 1187 0420]);
 ph1(1) = plot(time,data(2,:),'-','Color',[0 0 0.8],'LineWidth',1.6);
 ph1(2) = plot(time,data(4,:),'-','Color',[0.8 0 0],'LineWidth',1.6);
 xlabel('\bfTime [s]');
-ylabel('\bfSpeed [m/s]');
+ylabel('\bfAbsolute Speed [m/s]');
 legend('Chair','Person');
 legend(ph1,{'Chair','Person'},'Location','SouthWest');
 
