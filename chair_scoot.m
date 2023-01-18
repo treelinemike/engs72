@@ -1,6 +1,6 @@
 % Simplified simulation of scooting a chair/sled forward w/o touching ground
 % Author:  Mike Kokko
-% Updated: 17-Jan-2023
+% Updated: 18-Jan-2023
 
 % restart
 close all; clear; clc;
@@ -15,8 +15,8 @@ sysParams.P_fwd = 4;     % [N] force pushing person CM forward (static)
 sysParams.P_rev = -265;  % [N] force flinging person CM backward (dynamic) -- this should be negative!
 sysParams.A_len = 0.3;   % [m] length over which person CM moves/slides
 sysParams.Fn01  = (sysParams.m_a + sysParams.m_b)*sysParams.g;
-sysParams.mode = 1;
-sysParams.Ff = nan;
+sysParams.mode  = 1;
+sysParams.Ff    = nan;
 
 % simulation time parameters
 t0 = 0;        % [s] simulation start time
@@ -137,29 +137,36 @@ end
 
 %% plot data
 
-% speeds
-fh1 = generateModeFig(time,mode_data,min([data(2,:) data(4,:)]),max([data(2,:) data(4,:)]));
-figure(fh1);
-set(gcf,'Position',[0323 0374 1187 0420]);
-ph1(1) = plot(time,data(2,:),'-','Color',[0 0 0.8],'LineWidth',1.6);
-ph1(2) = plot(time,data(4,:),'-','Color',[0.8 0 0],'LineWidth',1.6);
-xlabel('\bfTime [s]');
-ylabel('\bfAbsolute Speed [m/s]');
-legend('Chair','Person');
-legend(ph1,{'Chair','Person'},'Location','SouthWest');
+figure;
+t = tiledlayout(2,1);
+t.TileSpacing = "tight";
+t.Padding = "compact";
 
 % positions
-fh2 = generateModeFig(time,mode_data,min([data(1,:) data(3,:)]),max([data(1,:) data(3,:)]));
-figure(fh2);
-set(gcf,'Position',[0323 0374 1187 0420]);
+ax1 = nexttile(1);
+generateModeFig(ax1,time,mode_data,min([data(1,:) data(3,:)]),max([data(1,:) data(3,:)]));
 ph2(1) = plot(time,data(1,:),'-','Color',[0 0 0.8],'LineWidth',1.6);
 ph2(2) = plot(time,data(3,:),'-','Color',[0.8 0 0],'LineWidth',1.6);
 xlabel('\bfTime [s]');
-ylabel('\bfPosition [m]');
+ylabel('\bfAbs. Position [m]');
 legend(ph2,{'Back of Chair','Person CM'},'Location','NorthWest');
 
+% speeds
+ax2 = nexttile(2);  
+generateModeFig(ax2,time,mode_data,min([data(2,:) data(4,:)]),max([data(2,:) data(4,:)]));
+ph1(1) = plot(time,data(2,:),'-','Color',[0 0 0.8],'LineWidth',1.6);
+ph1(2) = plot(time,data(4,:),'-','Color',[0.8 0 0],'LineWidth',1.6);
+xlabel('\bfTime [s]');
+ylabel('\bfAbs. Speed [m/s]');
 
-% propagate state
+% link the axes
+linkaxes([ax1,ax2],'x');
+
+
+
+
+
+% function to compute derivative of state vector
 function X_dot = stateProp(t,X,sysParams)
 
 % deconstruct state vector
@@ -194,11 +201,13 @@ switch(sysParams.mode)
 end
 end
 
-% generate figure with time on x axis
+
+
+% function to generate MATLAB axis object with time on x axis
 % and colored bands indicating when system is in each mode
-function fh = generateModeFig(time,mode_data,ymin,ymax)
+function generateModeFig(ah,time,mode_data,ymin,ymax)
 mode_colors = [ 0.8 0 0; 0 0.8 0; 0 0 0.8; 0.8 0.8 0];
-fh = figure;
+axis(ah);
 hold on; grid on;
 xlim([0 time(end)]);
 ylim([ymin ymax]);
