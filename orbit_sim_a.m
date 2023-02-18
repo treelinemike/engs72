@@ -30,10 +30,10 @@ dt = 5;         % [s] timestep size
 % theta_dot_0 = 8215.8/(r_0);  % [rad/s]
 
 % ISS
-% r_0 = 6.781e6;             % [m]
-% r_dot_0 = 0;               % [m/s]
-% theta_0 = 0;               % [rad]
-% theta_dot_0 = 7667/(r_0);  % [rad/s]
+r_0 = 6.781e6;             % [m]
+r_dot_0 = 0;               % [m/s]
+theta_0 = 0;               % [rad]
+theta_dot_0 = 7667/(r_0);  % [rad/s]
 
 % PS #2
 % r_0 = 2.594e7;                   % [m]

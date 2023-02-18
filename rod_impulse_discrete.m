@@ -63,7 +63,7 @@ for num_masses = mass_range
     drawnow;
     
     if(find(mass_range == num_masses) < 20)
-        pause(0.4);
+        pause(0.1);
     end
 end
 

@@ -30,10 +30,10 @@ dt = 5;         % [s] timestep size
 % theta_dot_0 = 8215.8/(r_0);  % [rad/s]
 
 % ISS
-% r_0 = 6.781e6;             % [m]
-% r_dot_0 = 0;               % [m/s]
-% theta_0 = 0;               % [rad]
-% theta_dot_0 = 7667/(r_0);  % [rad/s]
+r_0 = 6.781e6;             % [m]
+r_dot_0 = 0;               % [m/s]
+theta_0 = 0;               % [rad]
+theta_dot_0 = 7667/(r_0);  % [rad/s]
 
 % Insert away from perigee (unusual!)
 % v0 = 8200;
@@ -248,7 +248,7 @@ theta_dot = X(4);
 % therefore Xdot = [r_dot  r_ddot  theta_dot  theta_ddot]'
 Xdot = zeros(4,1);
 Xdot(1,:) = r_dot;
-Xdot(2,:) = %%%% ENTER YOUR EXPRESSION FOR r_ddot HERE %%%%
+Xdot(2,:) = r*theta_dot^2 - G*M/(r^2);
 Xdot(3,:) = theta_dot;
-Xdot(4,:) = %%%% ENTER YOUR EXPRESSION FOR theta_ddot HERE %%%%
+Xdot(4,:) = -1*(2*r_dot*theta_dot)/r;
 end

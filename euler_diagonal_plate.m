@@ -6,11 +6,11 @@
 % restart
 close all; clear all; clc;
 
-            % general options
-            anim_step = 10; % skip this many frames to speed up animation
-            doMakeVideo = 0; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
-            videoFileName = 'euler_diagonal_plate';
-            videoFrameRate = 300; % [frames/sec]
+% general options
+anim_step = 10; % skip this many frames to speed up animation
+doMakeVideo = false; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
+videoFileName = 'euler_diagonal_plate';
+videoFrameRate = 10; % [frames/sec]
 
 % simulation time parameters
 t0 = 0;         % [s] simulation start time
@@ -45,21 +45,21 @@ simModeData = [0];
 
 % run simulation
 for t = t0:dt:(tf-dt)
-    
+
     % set mode
     if(t > 2*pi*revs_before_release/omega_0)
         simMode = 1;
     else
         simMode = 0;
     end
-    
+
     % calculate timestep for ODE solving
     odeTime = [t t+dt];
-    
+
     % propigate state
     [T,X] = ode45(@(t,X) simpleEulerSimStateProp(t,X,Icm,simMode),odeTime,X);
     X = X(end, :)';  % note: this step is necessary to keep state vector dimensions correct for next call to ode45()
-    
+
     % store results from this timestep
     time(end+1)   = T(end);
     data(:,end+1) = X; % note: discarding state values at intermediate timesteps calculated by ode45()
@@ -98,12 +98,11 @@ R = eye(3);
 figure;
 set(gcf,'Position',[2.098000e+02 8.980000e+01 7.824000e+02 0624]);
 hold on; grid on;
-firstrun = 1;
 
 % animate each frame of results
 saveFrameIdx = 0;
 for tIdx = 2:size(data,2)
-    
+
     % compute rotation between body coordinates and inertial space
     d_theta_x = data(1,tIdx) - data(1,tIdx-1);
     d_theta_y = data(2,tIdx) - data(2,tIdx-1);
@@ -112,41 +111,41 @@ for tIdx = 2:size(data,2)
     yRot = [cos(d_theta_y) 0 sin(d_theta_y); 0 1 0; -sin(d_theta_y) 0 cos(d_theta_y)];
     zRot = [cos(d_theta_z) -sin(d_theta_z) 0 ; sin(d_theta_z) cos(d_theta_z) 0; 0 0 1];
     R  = R*(xRot*yRot*zRot*eye(3));     % incremental rotations so order shouldn't matter
-    
+
     % skip frames if desired to speed up animation
     % don't do this in the for loop b/c need to update rotation at each step
     if( mod(tIdx-2,anim_step) == 0 )
         % transform point cloud to correct location in inertial space
         board.vrot = board.v*R';
         triad_xyz = triad_xyz_template*R';
-        
+
         % compute angular velocity in terms of the inertial basis (XYZ)
         omega = data(4:6,tIdx);
         omega_XYZ = R*omega;
-        
+
         % compute angular momentum vector in terms of inertial basis (XYZ)
         % THIS SHOULD STAY CONSTANT (no external moments)
         Hcm_xyz = Icm*omega;
         Hcm_XYZ = R*Hcm_xyz;
-        
+
         % clear axes and start plotting the current frame
         cla;
-        
+
         % plot XYZ (all black) and xyz (x=red, y=green, z=blue) coordinate frames
         plot3(triad_XYZ(:,1),triad_XYZ(:,2),triad_XYZ(:,3),'LineWidth',4,'Color','k')
         plot3([triad_xyz(1,1) triad_xyz(2,1)],[triad_xyz(1,2) triad_xyz(2,2)],[triad_xyz(1,3) triad_xyz(2,3)],'LineWidth',3,'Color',[0.7 0 0]);
         plot3([triad_xyz(3,1) triad_xyz(4,1)],[triad_xyz(3,2) triad_xyz(4,2)],[triad_xyz(3,3) triad_xyz(4,3)],'LineWidth',3,'Color',[0 0.7 0]);
         plot3([triad_xyz(5,1) triad_xyz(6,1)],[triad_xyz(5,2) triad_xyz(6,2)],[triad_xyz(5,3) triad_xyz(6,3)],'LineWidth',3,'Color',[0 0 0.7]);
-        
+
         % normalize and plot angular velocity and momentum
         omega_norm = 2.6*omega_XYZ/norm(omega_XYZ);
         Hcm_norm = 2.6*Hcm_XYZ/norm(Hcm_XYZ);
         ph(1) = plot3([0 omega_norm(1)],[0 omega_norm(2)],[0 omega_norm(3)],'-','LineWidth',3','Color',[1 0 1]);
         ph(2) = plot3([0 Hcm_norm(1)],[0 Hcm_norm(2)],[0 Hcm_norm(3)],'-','LineWidth',3','Color',[0 1 1]);
-        
+
         % plot board as patch object
         patch('Faces',board.f,'Vertices',board.vrot,'FaceColor','flat','EdgeColor','none','LineWidth',1,'FaceVertexCData',board.c);
-        
+
         % finish formatting axes
         axis equal;
         xlim([-h h]);
@@ -155,11 +154,8 @@ for tIdx = 2:size(data,2)
         xlabel('\bfx');
         ylabel('\bfy');
         zlabel('\bfz');
-        
-        if(firstrun)
-            legend(ph,{'Angular Velocity','Angular Momentum'},'Location','southoutside','AutoUpdate','off');
-            firstrun = 0;
-        end
+
+        legend(ph,{'Angular Velocity','Angular Momentum'},'Location','southoutside','AutoUpdate','off');
         switch(simModeData(tIdx))
             case 0
                 title('\bfConstrained');
@@ -169,7 +165,7 @@ for tIdx = 2:size(data,2)
         view([145,30]);
         view([18,84]);
         drawnow;
-        
+
         % save frames for video if requested
         if(doMakeVideo)
             thisImgFile = sprintf('frame%04d.png',saveFrameIdx);
@@ -182,8 +178,8 @@ end
 
 % generate movie with ffmpeg
 if(doMakeVideo)
-    system(['ffmpeg -y -r ' num2str(videoFrameRate) ' -start_number 1 -i frame%03d.png -vf "format=rgba,scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -profile:v high -pix_fmt yuv420p -g 25 -r 25 ' videoFileName '.mp4']);
-    system('rm frame*.png');
+    system(['ffmpeg -y -r ' num2str(videoFrameRate) ' -start_number 1 -i frame%04d.png -vf "format=rgba,scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -profile:v high -pix_fmt yuv420p -g 25 -r 25 ' videoFileName '.mp4']);
+%     system('rm frame*.png');
 end
 
 % propagate state
