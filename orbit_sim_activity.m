@@ -195,6 +195,10 @@ lh3 = legend(ph_alist,{'dv/dt','er','etheta'},'TextColor',[1 1 1],'EdgeColor',[1
 % link axes
 linkaxes([ah1 ah2 ah3],'x');
 
+% display key values from sim
+fprintf("r_p = %0.3e m; v_p = %0.1f m/s\n",min(r),max(v_cartesian));
+fprintf("r_a = %0.3e m; v_a = %0.1f m/s\n",max(r),min(v_cartesian));
+
 %% animate result in a new plot
 % animate each frame of results
 if(doAnimate)
