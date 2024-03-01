@@ -1,7 +1,7 @@
 % Simulate and plot phase portraits for the simple 1DOF pendulum
 % Demo for ENGS 72: Dynamics, Thayer School of Engineering @ Dartmouth College
 % Author: Mike Kokko
-% Modified: 02-Mar-2021
+% Modified: 01-Mar-2024
 
 % restart
 close all; clear all; clc;
@@ -15,6 +15,8 @@ anim_step = 10; % speed up animation by skipping this many frames between refres
 doMakeVideo = 0; % set to 1 to produce a video file; requires imagemagick ('convert') and ffmpeg
 videoFileName = 'pendulum';
 videoFrameRate = 20; % [frames/sec]
+doShowVectorField = true;
+doShowLagrangian = false;
 
 % simulation time parameters
 t0 = 0;      % [s] simulation start time
@@ -26,8 +28,9 @@ opts = odeset('RelTol',1e-6,'AbsTol',1e-8);
 sysParams = [];
 sysParams.m = 1;  % pendulum acceleration is mass invariant
 sysParams.l = 6;
-sysParams.c = 0.6;
+sysParams.c = 0.0; % try 0 or 0.6
 sysParams.g = 9.81; % [m/s^2]
+sysParams.T_boost = 0;
 
 % initial conditions (state vector: [theta theta_dot]')
 theta_0     = -120*pi/180;    % [rad]
@@ -39,12 +42,19 @@ X = X0;
 time = [t0];
 data = [X0];
 
+boost_timer = 0;
+boost_dir = 1;
+
 % run simulation
 for t = t0:dt:(tf-dt)
     
     % calculate timestep for ODE solving
     odeTime = [t t+dt];
     
+%     if( (abs(X(1)) < (pi/6)) )
+%         sysParams.T_boost = sign(X(2))*1.2;
+%     end
+
     % propigate state
     [T,X] = ode45(@(t,X) propDynamics(t,X,sysParams),odeTime,X,opts);
     X = X(end, :)';  % note: this step is necessary to keep state vector dimensions correct for next call to ode45()
@@ -70,6 +80,8 @@ end
 % compute phase portrait
 x1dot = x2;
 x2dot = -1*(sysParams.g/sysParams.l)*sin(x1)-sysParams.c*x2;
+% x2dot = -1*(sysParams.g/sysParams.l)*sin(x1)-sysParams.c*x2 + 1*(pi-x1) + (sysParams.g/sysParams.l)*sin(x1) - 2.5*x2;
+% x2dot = -1*(sysParams.g/sysParams.l)*sin(x1)-sysParams.c*x2 + 2*(sysParams.g/sysParams.l)*sin(x1);
 
 % plot phase portrait
 figure;
@@ -80,11 +92,13 @@ t = tiledlayout(3,3);
 t.Padding = 'none';  % 'normal', 'compact', or 'none'
 t.TileSpacing = 'none';  % 'normal', 'compact', or 'none'
 
-%% animate result
+
 % plot phase plane
 nexttile(2,[2 2]);
 hold on; grid on;
-quiver(x1,x2,x1dot,x2dot,1.5,'LineWidth',2,'Color',0.6*ones(1,3));
+if(doShowVectorField)
+    quiver(x1,x2,x1dot,x2dot,1.5,'LineWidth',2,'Color',0.6*ones(1,3));
+end
 xlabel('\bfAngular Position [rad]');
 ylabel('\bfAngular Velocity [rad/s]');
 title('Pendulum Phase Portrait');
@@ -94,6 +108,16 @@ axis equal;
 fixedPtLocs = [-2*pi 0; -pi 0; 0 0; pi 0; 2*pi 0]';
 plot(fixedPtLocs(1,1:2:size(fixedPtLocs,2)),fixedPtLocs(2,1:2:size(fixedPtLocs,2)),'ko','MarkerSize',15,'LineWidth',4,'MarkerFace','k');
 plot(fixedPtLocs(1,2:2:size(fixedPtLocs,2)),fixedPtLocs(2,2:2:size(fixedPtLocs,2)),'ko','MarkerSize',15,'LineWidth',4);
+
+% plot lagrangian
+T = 0.5*(sysParams.m*sysParams.l)^2*x2.^2;
+V = sysParams.m*sysParams.g*sysParams.l*(1-cos(x1));
+L = T-V;
+if(doShowLagrangian)
+    contour(x1,x2,L);
+end
+
+%% animate result
 
 % plot phase space trajectory
 x1traj = data(1,:)';
@@ -182,6 +206,7 @@ m = sysParams.m;  % note: pendulum acceleration is mass invariant
 l = sysParams.l;
 c = sysParams.c;
 g = sysParams.g;
+T_boost = sysParams.T_boost;
 
 % deconstruct state vector
 theta = X(1);
@@ -192,6 +217,8 @@ theta_dot = X(2);
 % therefore Xdot = [theta_dot  theta_ddot]
 Xdot = zeros(2,1);
 Xdot(1,:) = theta_dot;
-Xdot(2,:) = -1*(g/l)*sin(theta)-c*theta_dot;
+Xdot(2,:) = -1*(g/l)*sin(theta)-c*theta_dot + T_boost;
+% Xdot(2,:) = -1*(g/l)*sin(theta)-c*theta_dot +  (g/l)*sin(theta) + 1*(pi-theta) - 2.5*theta_dot;
+
 
 end
