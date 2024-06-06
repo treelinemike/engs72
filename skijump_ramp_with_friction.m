@@ -115,7 +115,7 @@ for data_idx = 1:size(data_xyz,2)
     y = data_xyz(3,data_idx);
     E(data_idx) = 9.81*y + 0.5*(s_dot)^2;
 end
-plot(time,E);
+plot(time,E,'-','LineWidth',1.6,'Color',[0 0 0.8]);
 ylabel('\bfEnergy');
 % plot(time,Fn,'-','LineWidth',1.6,'Color',[0 0 0.8]);
 % plot(time,Ff,'-','LineWidth',1.6,'Color',[0.8 0 0]);
@@ -125,7 +125,7 @@ ylabel('\bfEnergy');
 
 ah(4) = subplot(4,1,4);
 hold on; grid on;
-plot(time,mode);
+plot(time,mode,'-','LineWidth',1.6,'Color',[0 0 0.8]);
 ylabel('\bfMode');
 % plot(time,U_fric,'-','LineWidth',1.6,'Color',[0.8 0 0]);
 % xlabel('\bfTime [sec]');
